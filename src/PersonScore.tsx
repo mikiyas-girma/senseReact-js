@@ -1,5 +1,15 @@
-import { useEffect, useState, useReducer } from "react";
+import { useEffect, useState, useReducer, useRef, useMemo } from "react";
 import { getPerson } from "./getPerson";
+
+// some silly expensive function to illustrate useMemo
+const sillyExpensiveFunction = () => {
+  console.log("I am a silly expensive function");
+  let sum = 0;
+  for (let i = 0; i < 1000; i++) {
+    sum += i;
+  }
+  return sum;
+};
 
 type State = {
   name: string | undefined;
@@ -22,6 +32,8 @@ type Action =
   | {
       type: "reset";
     };
+
+// useReducer  for state management (alternative to useState)
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -64,6 +76,8 @@ export function PersonScore() {
     loading: true,
   });
 
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     // in case if we use usesState
     //   getPerson().then((person) => {
@@ -73,6 +87,18 @@ export function PersonScore() {
     // }, []);
     getPerson().then(({ name }) => dispatch({ type: "initialize", name }));
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      addButtonRef.current?.focus();
+    }
+  }, [loading]);
+
+  // const expensiveCalculation = sillyExpensiveFunction();
+
+  // fixing the above  problem with useMemo
+  const expensiveCalculation = useMemo(() => sillyExpensiveFunction(), []);
+
   if (loading) {
     return <div>Loading ...</div>;
   }
@@ -82,6 +108,7 @@ export function PersonScore() {
       <h3>
         {name}, {score}
       </h3>
+      <p>{expensiveCalculation}</p>
       {/* when we use usestate Hook */}
       {/* <button onClick={() => setScore(score + 1)}>Add</button>
       <button onClick={() => setScore(score - 1)}>Subtract</button>
@@ -89,7 +116,12 @@ export function PersonScore() {
 
       {/* when we use useReducer Hook */}
 
-      <button onClick={() => dispatch({ type: "increment" })}>Add</button>
+      <button
+        ref={addButtonRef}
+        onClick={() => dispatch({ type: "increment" })}
+      >
+        Add
+      </button>
       <button onClick={() => dispatch({ type: "decrement" })}>Subtract</button>
       <button onClick={() => dispatch({ type: "reset" })}>Reset</button>
     </div>
