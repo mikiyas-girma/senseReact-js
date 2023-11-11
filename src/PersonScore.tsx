@@ -1,5 +1,13 @@
-import { useEffect, useState, useReducer, useRef, useMemo } from "react";
+import {
+  useEffect,
+  useState,
+  useReducer,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { getPerson } from "./getPerson";
+import { Reset } from "./Reset";
 
 // some silly expensive function to illustrate useMemo
 const sillyExpensiveFunction = () => {
@@ -99,6 +107,8 @@ export function PersonScore() {
   // fixing the above  problem with useMemo
   const expensiveCalculation = useMemo(() => sillyExpensiveFunction(), []);
 
+  const handleReset = useCallback(() => dispatch({ type: "reset" }), []);
+
   if (loading) {
     return <div>Loading ...</div>;
   }
@@ -113,9 +123,7 @@ export function PersonScore() {
       {/* <button onClick={() => setScore(score + 1)}>Add</button>
       <button onClick={() => setScore(score - 1)}>Subtract</button>
       <button onClick={() => setScore(0)}>Reset</button> */}
-
       {/* when we use useReducer Hook */}
-
       <button
         ref={addButtonRef}
         onClick={() => dispatch({ type: "increment" })}
@@ -123,7 +131,10 @@ export function PersonScore() {
         Add
       </button>
       <button onClick={() => dispatch({ type: "decrement" })}>Subtract</button>
-      <button onClick={() => dispatch({ type: "reset" })}>Reset</button>
+      {/* <button onClick={() => dispatch({ type: "reset" })}>Reset</button> */}
+
+      {/* // to implement using callBack Hook on Reset button */}
+      <Reset onClick={handleReset} />
     </div>
   );
 }
